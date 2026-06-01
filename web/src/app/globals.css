@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  /* fonte base 1px menor (16px -> 15px) */
+  font-size: 15px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-cream font-sans text-coffee-950 antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Indicador "digitando..." */
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+/* Barra de rolagem escondida (usado no chat) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fundo do chat: grãozinhos de café (estilo WhatsApp) */
+.chat-bg {
+  background-color: #efe6d9;
+  background-image: url("/chat-pattern.svg");
+  background-size: 112px 112px;
+  background-repeat: repeat;
+}
+
+/* Área segura para notch / barra inferior de PWA */
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.9rem);
+}
+.safe-top {
+  /* inset do notch + um respiro fixo no topo */
+  padding-top: calc(env(safe-area-inset-top) + 1.25rem);
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white shadow-soft hover:bg-accent-dark;
+  }
+  .btn-secondary {
+    @apply btn bg-coffee-100 text-coffee-800 hover:bg-coffee-200;
+  }
+  .btn-ghost {
+    @apply btn text-coffee-700 hover:bg-coffee-100;
+  }
+  .input {
+    @apply w-full rounded-xl border border-coffee-200 bg-white px-4 py-3 text-coffee-950 outline-none transition placeholder:text-coffee-400 focus:border-accent focus:ring-2 focus:ring-accent/30;
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-card;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-coffee-700;
+  }
+}
+
+/* Scrollbar discreta */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-coffee-200;
+}

@@ -1,0 +1,36 @@
+# Caddy — reverse proxy do VersoCafé.
+# Em local, servimos HTTP simples na porta APP_PORT (http://localhost:APP_PORT),
+# evitando o aviso de certificado. localhost é "secure context", então o PWA
+# (service worker / push) continua funcionando mesmo sem HTTPS.
+# Para produção com domínio real + HTTPS automático, veja o comentário no fim.
+
+:{$APP_PORT} {
+	encode gzip zstd
+
+	# API REST + fotos (/api/uploads/*)
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+
+	# WebSocket do chat (Socket.io)
+	handle /socket.io/* {
+		reverse_proxy api:4000
+	}
+
+	# Frontend (Next.js)
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+# --- Produção com HTTPS automático (Let's Encrypt) ---
+# Troque o bloco acima por:
+#
+# {$APP_DOMAIN} {
+#     encode gzip zstd
+#     handle /api/*      { reverse_proxy api:4000 }
+#     handle /socket.io/* { reverse_proxy api:4000 }
+#     handle              { reverse_proxy web:3000 }
+# }
+#
+# e mapeie as portas 80 e 443 do Caddy no docker-compose.

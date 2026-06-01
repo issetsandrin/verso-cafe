@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Builds
+dist/
+build/
+.next/
+out/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma
+api/prisma/*.db
+
+# Docker / data volumes
+data/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Caddy
+caddy_data/
+caddy_config/
+
+# Test
+coverage/
+
+# TypeScript build cache
+*.tsbuildinfo

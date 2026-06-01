@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+enum CoffeeDayStatus {
+  SCHEDULED
+  DONE
+  SKIPPED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role           Role       @default(MEMBER)
+  status         UserStatus @default(PENDING)
+  eligible       Boolean    @default(true)
+  chatLastReadAt DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  assignments       CoffeeAssignment[]
+  messages          ChatMessage[]
+  reactions         MessageReaction[]
+  coffeeRatings     CoffeeRating[]
+  pushSubscriptions PushSubscription[]
+
+  @@index([status])
+}
+
+model CoffeeDay {
+  id          String          @id @default(cuid())
+  date        DateTime        @unique @db.Date
+  roundNumber Int
+  status      CoffeeDayStatus @default(SCHEDULED)
+  createdAt   DateTime        @default(now())
+
+  assignments CoffeeAssignment[]
+
+  @@index([roundNumber])
+  @@index([status])
+}
+
+model CoffeeAssignment {
+  id          String    @id @default(cuid())
+  coffeeDay   CoffeeDay @relation(fields: [coffeeDayId], references: [id], onDelete: Cascade)
+  coffeeDayId String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  @@unique([coffeeDayId, userId])
+  @@index([userId])
+}
+
+model ChatMessage {
+  id            String    @id @default(cuid())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  text          String?
+  imageKey      String?
+  createdAt     DateTime  @default(now())
+  editedAt        DateTime?
+  deletedAt       DateTime?
+  isCoffeeProof   Boolean   @default(false)
+  isCoffeeRequest Boolean   @default(false)
+
+  ratings CoffeeRating[]
+
+  replyToId String?
+  replyTo   ChatMessage?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   ChatMessage[] @relation("MessageReplies")
+
+  reactions MessageReaction[]
+
+  @@index([createdAt])
+}
+
+model MessageReaction {
+  id        String      @id @default(cuid())
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+}
+
+model CoffeeRating {
+  id        String      @id @default(cuid())
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  stars     Int
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
